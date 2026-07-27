@@ -1,55 +1,37 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from slowapi.errors import RateLimitExceeded
-
-from app.config import settings
-from app.database import Base, engine
-from app.limiter import limiter
-from app.routers import auth, users, conversations, chat, memory, voice, reminders, todos, whatsapp, home_assistant
-
-logging.basicConfig(level=logging.INFO)
+from api.auth.routes import router as auth_router
+from api.chat.routes import router as chat_router
 
 app = FastAPI(
-    title=settings.APP_NAME,
-    description="Backend MVP do NEXUS SYSTEM AI — API Gateway, Auth, Model Orchestrator, Agentes, Memória.",
-    version="0.1.0",
-)
-
-app.state.limiter = limiter
-app.add_exception_handler(
-    RateLimitExceeded,
-    lambda request, exc: JSONResponse(status_code=429, content={"detail": "Limite de requisições excedido"}),
+    title="NEXUS IA v2.0",
+    description="Plataforma completa de IA com multi-provedores e multimodal",
+    version="2.0.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(conversations.router)
-app.include_router(chat.router)
-app.include_router(memory.router)
-app.include_router(voice.router)
-app.include_router(reminders.router)
-app.include_router(todos.router)
-app.include_router(whatsapp.router)
-app.include_router(home_assistant.router)
+logger = logging.getLogger(__name__)
 
-
-@app.on_event("startup")
-def on_startup():
-    # MVP: cria as tabelas diretamente. Em produção, use Alembic (ver README/roadmap).
-    Base.metadata.create_all(bind=engine)
-
+app.include_router(auth_router)
+app.include_router(chat_router)
 
 @app.get("/health")
-def health():
-    return {"status": "ok", "app": settings.APP_NAME, "env": settings.ENV}
+async def health():
+    return {"status": "ok", "service": "nexus-ia", "version": "2.0.0"}
+
+@app.get("/")
+async def root():
+    return {"message": "NEXUS IA API v2.0.0"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
