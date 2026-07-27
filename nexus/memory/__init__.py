@@ -1,1 +1,1 @@
-# Memory package v2.0
+# NEXUS Memory Package

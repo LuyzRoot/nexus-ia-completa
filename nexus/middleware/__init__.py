@@ -1,1 +1,1 @@
-# Middleware package v2.0
+# NEXUS Middleware Package

@@ -1,1 +1,1 @@
-# Docs package v2.0
+# NEXUS Documentation Package

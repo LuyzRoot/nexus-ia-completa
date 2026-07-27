@@ -1,1 +1,1 @@
-# Plugins package v2.0
+# NEXUS Plugins Package

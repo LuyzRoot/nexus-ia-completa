@@ -1,1 +1,1 @@
-# Agents package v2.0
+# NEXUS Agents Package
