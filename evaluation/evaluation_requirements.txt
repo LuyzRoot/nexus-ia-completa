@@ -1,0 +1,10 @@
+evaluate>=0.4
+sacrebleu
+rouge-score
+bert-score
+scikit-learn
+numpy
+pandas
+matplotlib
+seaborn
+tqdm

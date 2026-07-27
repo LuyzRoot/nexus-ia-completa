@@ -1,0 +1,10 @@
+# Optional dependencies for multimodal features
+pillow
+pytesseract      # for OCR (requires tesseract binary)
+transformers
+diffusers
+torch
+openai
+whisper
+elevenlabs
+pyttsx3

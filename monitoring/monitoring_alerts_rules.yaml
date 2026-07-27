@@ -1,0 +1,29 @@
+groups:
+  - name: nexus.rules
+    rules:
+      - alert: HighErrorRate
+        expr: increase(nexus_http_requests_total{http_status=~"5.."}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 5xx error rate"
+          description: "More than 10 server errors in the last 5 minutes."
+
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(nexus_http_request_duration_seconds_bucket[5m])) by (le)) > 2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p95 latency (>2s)"
+          description: "95th percentile request latency above 2s."
+
+      - alert: InstanceDown
+        expr: up == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance down"
+          description: "Prometheus target is down."

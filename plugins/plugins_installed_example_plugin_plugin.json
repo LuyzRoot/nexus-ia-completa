@@ -1,0 +1,8 @@
+{
+  "id": "example_plugin",
+  "name": "Example Plugin",
+  "version": "0.1.0",
+  "description": "Demonstration plugin: registers a simple skill and an API router.",
+  "author": "nexus-dev",
+  "enabled": true
+}
