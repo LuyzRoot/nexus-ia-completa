@@ -1,43 +1,39 @@
-# NEXUS IA v2.0 - Estrutura Final com Auto-Discovery
+# NEXUS IA v2.0 - Estrutura Final SIMPLIFICADA (Raiz)
 
 ## ✅ Implementado
 
-### Core Structure
-- ✅ `nexus/nexus_main.py` - FastAPI App
-- ✅ `nexus/nexus_config.py` - Configuration
+### Core Files
+- ✅ `nexus_main.py` - FastAPI App
+- ✅ `nexus_config.py` - Configuration
+- ✅ `nexus_agents.py` - 6 Agentes
+- ✅ `nexus_tools.py` - 7 Ferramentas
+- ✅ `nexus_memory.py` - Redis + Vector
+- ✅ `nexus_events.py` - Event Bus
+- ✅ `nexus_tasks.py` - Task Manager
+- ✅ `nexus_plugins.py` - Plugin System
+- ✅ `nexus_voice.py` - Voice I/O
+- ✅ `nexus_vision.py` - Vision
+- ✅ `nexus_middleware.py` - Middleware
+- ✅ `nexus_cache.py` - Caching
 
 ### Dynamic Systems
-- ✅ `nexus/pages/nexus_skills.py` - Auto-load skills
-- ✅ `nexus/pages/nexus_apis.py` - Auto-load LLM APIs
+- ✅ `nexus_skills.py` - Auto-load skills
+- ✅ `nexus_apis.py` - Auto-load LLM APIs
 
-### Skills (Dinâmicas)
-- ✅ `nexus/skills/` - Pasta para suas skills
-- ✅ Arquivo: `nexus_skill_*.py`
-- ✅ Auto-detecção sem código
-
-### APIs (LLM Providers - Dinâmicas)
-- ✅ `nexus/apis/nexus_openai.py` - OpenAI
-- ✅ `nexus/apis/nexus_anthropic.py` - Claude
-- ✅ `nexus/apis/nexus_ollama.py` - Ollama
-- ✅ `nexus/apis/nexus_gemini.py` - Gemini
-- ✅ Auto-detecção sem modificações
-
-### Agents & Tools
-- ✅ `nexus/agents/nexus_agents.py` - 6 Agentes
-- ✅ `nexus/tools/nexus_tools.py` - 7 Ferramentas
-
-### Advanced Features
-- ✅ `nexus/memory/nexus_memory.py` - Redis + Vector
-- ✅ `nexus/events/nexus_events.py` - Event Bus
-- ✅ `nexus/tasks/nexus_tasks.py` - Task Manager
-- ✅ `nexus/plugins/nexus_plugins.py` - Plugin System
-- ✅ `nexus/voice/nexus_voice.py` - Voice I/O
-- ✅ `nexus/vision/nexus_vision.py` - Vision
-- ✅ `nexus/middleware/nexus_middleware.py` - Middleware
-- ✅ `nexus/cache/nexus_cache.py` - Caching
-
-### Documentation
-- ✅ `nexus/docs/nexus_guide.md` - Complete Guide
+### Folders
+- ✅ `skills/` - Suas skills com `nexus_skill_*.py`
+- ✅ `apis/` - APIs das IAs com `nexus_*.py`
+- ✅ `agents/` - Agentes auxiliares
+- ✅ `tools/` - Ferramentas auxiliares
+- ✅ `memory/` - Memory utilities
+- ✅ `events/` - Events utilities
+- ✅ `tasks/` - Tasks utilities
+- ✅ `plugins/` - Plugins utilities
+- ✅ `voice/` - Voice utilities
+- ✅ `vision/` - Vision utilities
+- ✅ `middleware/` - Middleware utilities
+- ✅ `cache/` - Cache utilities
+- ✅ `docs/` - Documentation
 
 ---
 
@@ -45,7 +41,7 @@
 
 ### 1️⃣ Adicionar uma Nova Skill
 ```bash
-# Criar arquivo: nexus/skills/nexus_skill_minha_skill.py
+# Criar arquivo: skills/nexus_skill_minha_skill.py
 class Skill:
     name = "minha_skill"
     description = "Minha skill"
@@ -54,11 +50,11 @@ class Skill:
         return {"resultado": "sucesso"}
 ```
 
-✅ **Automáticamente reconhecida em `/skills/`**
+✅ **Automaticamente reconhecida em `/skills/`**
 
 ### 2️⃣ Adicionar uma Nova API
 ```bash
-# Criar arquivo: nexus/apis/nexus_minha_ia.py
+# Criar arquivo: apis/nexus_minha_ia.py
 class Provider:
     name = "minha_ia"
     description = "Minha IA"
@@ -67,7 +63,7 @@ class Provider:
         return "resposta"
 ```
 
-✅ **Automáticamente reconhecida em `/apis/`**
+✅ **Automaticamente reconhecida em `/apis/`**
 
 ---
 
@@ -92,11 +88,57 @@ POST   /apis/reload                      # Recarregar
 
 ---
 
-## 🔥 Arquivos com prefixo `nexus_`
+## 🔥 Estrutura de Diretórios
 
-✅ **Sem conflitos**
-✅ **Nenhuma duplicação**
-✅ **Auto-discovery funcionando**
-✅ **Pronto para produção**
+```
+.
+├── nexus_main.py                 ← App principal
+├── nexus_config.py               ← Config
+├── nexus_skills.py               ← Skills auto-loader
+├── nexus_apis.py                 ← APIs auto-loader
+├── nexus_agents.py               ← Agentes
+├── nexus_tools.py                ← Ferramentas
+├── nexus_memory.py               ← Memory
+├── nexus_events.py               ← Events
+├── nexus_tasks.py                ← Tasks
+├── nexus_plugins.py              ← Plugins
+├── nexus_voice.py                ← Voice
+├── nexus_vision.py               ← Vision
+├── nexus_middleware.py           ← Middleware
+├── nexus_cache.py                ← Cache
+├── skills/                       ← Suas skills aqui
+│   └── nexus_skill_example.py
+├── apis/                         ← APIs das IAs
+│   ├── nexus_openai.py
+│   ├── nexus_anthropic.py
+│   ├── nexus_ollama.py
+│   └── nexus_gemini.py
+├── agents/                       ← Agentes utilities
+├── tools/                        ← Tools utilities
+├── memory/                       ← Memory utilities
+├── events/                       ← Events utilities
+├── tasks/                        ← Tasks utilities
+├── plugins/                      ← Plugins utilities
+├── voice/                        ← Voice utilities
+├── vision/                       ← Vision utilities
+├── middleware/                   ← Middleware utilities
+├── cache/                        ← Cache utilities
+├── docs/                         ← Documentação
+├── requirements.txt
+├── .env.example
+└── README.md
+```
 
-**NEXUS IA v2.0 - Completo e Dinâmico!** 🚀
+---
+
+## ✨ Destaques
+
+- 🎯 **Auto-discovery** sem modificações
+- 🔄 **Carregamento dinâmico** de Skills e APIs
+- 📦 **Prefixo `nexus_`** em todos os arquivos principais
+- 🚫 **Zero duplicatas**
+- 🔌 **Totalmente extensível**
+- 🚀 **Pronto para produção**
+- 📁 **Raiz limpa e organizada**
+
+**NEXUS IA v2.0 - Completo, Dinâmico e Simplificado!** 🎉
