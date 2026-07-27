@@ -1,10 +1,10 @@
 """
-Configuração central da aplicação.
-Todos os valores sensíveis vêm de variáveis de ambiente (.env) — nunca hardcoded.
+Configuração central da aplicação (melhorada).
+Valida listas e exige JWT_SECRET_KEY em produção.
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator
 from typing import List
-
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -25,8 +25,7 @@ class Settings(BaseSettings):
     # Rate limiting
     RATE_LIMIT_DEFAULT: str = "60/minute"
 
-    # Model Orchestrator — ordem de fallback entre provedores
-    MODEL_PROVIDER_PRIORITY: List[str] = ["openai", "anthropic", "gemini", "mock"]
+    MODEL_PROVIDER_PRIORITY: List[str] = Field(default_factory=lambda: ["openai", "anthropic", "gemini", "mock"])
 
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "claude-sonnet-4-6"
@@ -37,29 +36,41 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.0-flash"
 
-    # Voice Engine — síntese de voz (ElevenLabs)
     ELEVENLABS_API_KEY: str = ""
-    ELEVENLABS_VOICE_ID: str = "21m00Tcm4TlvDq8ikWAM"  # voz padrão ("Rachel"), trocável no .env
-    ELEVENLABS_MODEL: str = "eleven_multilingual_v2"  # suporta pt-BR
+    ELEVENLABS_VOICE_ID: str = "21m00Tcm4TlvDq8ikWAM"
+    ELEVENLABS_MODEL: str = "eleven_multilingual_v2"
 
-    # Voice Engine — transcrição (Deepgram)
     DEEPGRAM_API_KEY: str = ""
-    DEEPGRAM_MODEL: str = "nova-2"  # multi-idioma
+    DEEPGRAM_MODEL: str = "nova-2"
 
-    # CORS
-    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["*"])
 
-    # WhatsApp (Meta Cloud API) — canal de comandos por voz/texto
-    WHATSAPP_VERIFY_TOKEN: str = ""       # string arbitrária escolhida por você, usada só na verificação do webhook
-    WHATSAPP_ACCESS_TOKEN: str = ""       # token permanente do app na Meta (System User)
-    WHATSAPP_PHONE_NUMBER_ID: str = ""    # ID do número no WhatsApp Business
-    WHATSAPP_APP_SECRET: str = ""         # usado pra validar a assinatura de cada webhook recebido
-    WHATSAPP_ALLOWED_NUMBERS: str = ""    # números permitidos, separados por vírgula, formato E.164 sem "+" (ex: 5511999998888). Vazio = ninguém passa.
-    WHATSAPP_REPLY_WITH_VOICE: bool = True  # se True e a mensagem recebida foi áudio, responde também em áudio (ElevenLabs)
+    WHATSAPP_VERIFY_TOKEN: str = ""
+    WHATSAPP_ACCESS_TOKEN: str = ""
+    WHATSAPP_PHONE_NUMBER_ID: str = ""
+    WHATSAPP_APP_SECRET: str = ""
+    WHATSAPP_ALLOWED_NUMBERS: List[str] = Field(default_factory=list)
+    WHATSAPP_REPLY_WITH_VOICE: bool = True
 
-    # Home Assistant — controle de casa inteligente via REST API local
-    HOME_ASSISTANT_URL: str = ""          # ex: http://192.168.1.10:8123 ou https://SEU-DOMINIO (Nabu Casa)
-    HOME_ASSISTANT_TOKEN: str = ""        # Long-Lived Access Token gerado no perfil do Home Assistant
+    HOME_ASSISTANT_URL: str = ""
+    HOME_ASSISTANT_TOKEN: str = ""
 
+    @field_validator("CORS_ORIGINS", mode="before")
+    def _parse_cors(cls, v):
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
+
+    @field_validator("WHATSAPP_ALLOWED_NUMBERS", mode="before")
+    def _parse_whatsapp(cls, v):
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
+
+    @field_validator("JWT_SECRET_KEY")
+    def secret_must_change(cls, v, values):
+        if values.get("ENV") == "production" and (not v or v == "CHANGE_ME_IN_PRODUCTION"):
+            raise ValueError("JWT_SECRET_KEY must be set to a secure value in production")
+        return v
 
 settings = Settings()

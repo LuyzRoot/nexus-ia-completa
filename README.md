@@ -114,3 +114,6 @@ Veja `.env.example` para referência completa. Principais:
 ## Licença
 
 MIT
+
+## Branch fix/cleanup-and-skills
+Inclui melhorias de segurança, Docker, requirements split, CI e um framework inicial de skills.
