@@ -1,4 +1,4 @@
-# app/api/__init__.py
+# api/__init__.py
 # Expose routers for easy import in app.main
 from .auth import router as auth_router  # noqa: F401
 from .users import router as users_router  # noqa: F401
