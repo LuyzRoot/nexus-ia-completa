@@ -1,0 +1,5 @@
+# Archived duplicate requirements.txt.txt
+
+This file was moved from the repository root to reduce duplication. The consolidated requirements are in the top-level requirements.txt.
+
+Original contents archived for history. Do not store secrets here.
