@@ -1,7 +1,11 @@
 """
-Alembic env.py (gerado a partir do template em database/).
-Este arquivo usa o settings.DATABASE_URL do projeto para configurar a conexão.
-Certifique-se de que `app.config.settings.settings.DATABASE_URL` está definido no seu .env e carregado pelo app antes de rodar alembic.
+Alembic env.py (ajustado para fallback SQLite dev.db)
+Este env.py tenta usar, por ordem:
+ 1) app.config.settings.settings.DATABASE_URL (se o módulo existir)
+ 2) variável de ambiente DATABASE_URL
+ 3) fallback: sqlite:///dev.db
+
+Ele também tenta importar metadados de modelos de `app.models` e, se não existir, de `models`.
 """
 from logging.config import fileConfig
 import os
@@ -16,17 +20,35 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# import settings and models
-# Ajuste os imports se a configuração de seu projeto usar caminhos diferentes
-from app.config.settings import settings
-# Ensure models are imported so metadata is populated
-import app.models as models  # noqa: F401
+# Determine DATABASE_URL: try project settings, then env var, then fallback to sqlite dev.db
+database_url = None
+try:
+    # Try to import project settings (common layout: app.config.settings)
+    from app.config.settings import settings as project_settings
+    database_url = getattr(project_settings, "DATABASE_URL", None)
+except Exception:
+    # ignore import errors - project might not have that path
+    database_url = os.environ.get("DATABASE_URL")
 
-target_metadata = models.Base.metadata
+if not database_url:
+    database_url = os.environ.get("DATABASE_URL", "sqlite:///dev.db")
 
-# Override sqlalchemy.url from settings if available
-if getattr(settings, "DATABASE_URL", None):
-    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Ensure sqlalchemy.url is set (alembic.ini has a default but we override for clarity)
+config.set_main_option("sqlalchemy.url", database_url)
+
+# Import models metadata: try app.models then models
+try:
+    import app.models as models  # type: ignore
+except Exception:
+    try:
+        import models  # type: ignore
+    except Exception:
+        models = None
+
+if models is None:
+    target_metadata = None
+else:
+    target_metadata = getattr(models, "Base", None)
 
 
 def run_migrations_offline():

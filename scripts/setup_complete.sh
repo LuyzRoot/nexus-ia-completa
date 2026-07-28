@@ -6,7 +6,7 @@ set -euo pipefail
 # - cria virtualenv em .venv
 # - instala dependencies do requirements.txt
 # - copia .env.example -> .env se .env não existir
-# - opcional: roda migrations do Alembic se chamado com --migrate
+# - opcional/automático: roda migrations do Alembic (por padrão habilitado)
 
 
 echo "=== Iniciando setup de nexus-ia-completa ==="
@@ -21,16 +21,21 @@ PYVER=$(python3 -c 'import sys; print("{}.{}".format(sys.version_info[0], sys.ve
 echo "Python detectado: $PYVER"
 
 # Parse optional flags
-RUN_MIGRATIONS=0
+# Por padrão, RUN_MIGRATIONS=1 (executa migrations automaticamente)
+RUN_MIGRATIONS=1
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
     --migrate)
       RUN_MIGRATIONS=1
       shift
       ;;
+    --no-migrate)
+      RUN_MIGRATIONS=0
+      shift
+      ;;
     *)
       echo "Opção desconhecida: $1"
-      echo "Uso: ./scripts/setup_complete.sh [--migrate]"
+      echo "Uso: ./scripts/setup_complete.sh [--migrate|--no-migrate]"
       exit 1
       ;;
   esac
@@ -77,23 +82,18 @@ if [ -d "frontend" ]; then
   cd frontend && npm install && npm run dev  # ou yarn && yarn dev"
 fi
 
-# 6) Migrations (opcional)
+# 6) Migrations (por padrão automático, a menos que --no-migrate seja passado)
 if [ "$RUN_MIGRATIONS" -eq 1 ]; then
-  echo "\nOpção --migrate detectada: tentando rodar migrations Alembic (alembic upgrade head)"
+  echo "\nExecutando migrations Alembic automaticamente (alembic upgrade head)..."
   # Ensure alembic is installed in the venv
   if ! python -c "import alembic" >/dev/null 2>&1; then
     echo "Alembic não encontrado no venv — instalando alembic..."
     pip install alembic
   fi
 
-  # If alembic.ini is missing, warn the user (we added a template alembic.ini at repo root)
+  # If alembic.ini is missing, warn the user
   if [ ! -f alembic.ini ]; then
-    echo "Aviso: alembic.ini não encontrado na raiz do repo. Criando a partir do template alembic.ini (se presente)."
-    if [ -f alembic.ini ]; then
-      echo "alembic.ini já presente"
-    else
-      echo "Template alembic.ini não encontrado — crie um alembic.ini ou verifique database/alembic_env_template.py"
-    fi
+    echo "Aviso: alembic.ini não encontrado na raiz do repo. Crie/edite alembic.ini se necessário." >&2
   fi
 
   # Run alembic upgrade head
@@ -105,6 +105,8 @@ if [ "$RUN_MIGRATIONS" -eq 1 ]; then
     echo "Executando alembic via python -m alembic upgrade head"
     python -m alembic upgrade head
   fi
+else
+  echo "Migrations automáticas desabilitadas. Use --migrate para rodar manualmente." 
 fi
 
 # 7) Banco de dados (opcional)
@@ -114,9 +116,9 @@ fi
 echo "\nSetup concluído (passos automatizados). Próximos passos sugeridos:"
 echo "1) Ative o venv: source .venv/bin/activate"
 echo "2) Edite .env e preencha as variáveis necessárias"
-echo "3) Se você rodou --migrate, verifique se as migrations aplicaram sem erros"
+echo "3) Se você rodou migrations automaticamente, verifique se as migrations aplicaram sem erros e se dev.db foi criado"
 echo "4) Inicie o backend: python nexus_main.py  (ver README para comando exato)"
 
-echo "Se quiser que eu execute alterações adicionais (ex: ajustar alembic.ini, configurar um SQLite 'dev.db', ou adaptar para Windows), diga o que prefere e eu atualizo os arquivos." 
+echo "Se quiser que eu execute alterações adicionais (ex: ajustar alembic.ini, criar uma migration inicial automaticamente, ou adaptar para Windows), diga o que prefere e eu atualizo os arquivos." 
 
 exit 0
