@@ -1,0 +1,1 @@
+CONFIG = {"max_turns": 10}
